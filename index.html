@@ -1,0 +1,224 @@
+<html>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<head>
+
+    <script>
+        const PIXEL = 38;
+        function generate() {
+            // const height = document.getElementById("height").value * PIXEL;
+            // const width = document.getElementById("width").value * PIXEL;
+
+            const loadedImage = document.getElementById("loadedImage");
+            const height = loadedImage.naturalHeight;
+            const width = loadedImage.naturalWidth;
+
+            const vgap = document.getElementById("vgap").value * PIXEL;
+            const hgap = document.getElementById("hgap").value * PIXEL;
+            const thickness = document.getElementById("thickness").value;
+
+            if (vgap < 0 || hgap < 0 || thickness < 0 ||
+                isNaN(vgap) || isNaN(hgap) || isNaN(thickness) ||
+                !vgap || !hgap || !thickness || !width || !width) {
+
+                return;
+
+            }
+            const lineColor = document.getElementById("color").value;
+            const canvas = document.getElementById('canvas');
+            canvas.height = height;
+            canvas.width = width;
+            if (canvas.getContext) {
+                var ctx = canvas.getContext('2d');
+                ctx.drawImage(loadedImage, 0, 0, width, height);
+                // ctx.rect(0, 0, width, height);
+                // ctx.fillStyle = "white";
+                // ctx.fill();
+                ctx.strokeStyle = lineColor;
+                ctx.lineWidth = thickness;
+                for (i = 0; i < height; i += vgap) {
+                    ctx.moveTo(0, i - 1);
+                    ctx.lineTo(canvas.width, i - 1);
+                    ctx.stroke();
+                }
+                for (i = 0; i < width; i += hgap) {
+                    ctx.moveTo(i - 1, 0);
+                    ctx.lineTo(i - 1, canvas.height);
+                    ctx.stroke();
+                }
+            }
+            const image = canvas.toDataURL("image/png");
+            document.getElementById("generatedImage").src = image;
+            document.getElementById("generatedImage").style.display = "block";
+        }
+
+        function saveAsFile() {
+            const height = document.getElementById("loadedImage").naturalHeight;
+            const width = document.getElementById("loadedImage").naturalWidth;
+            if (!width || !width) {
+
+                return;
+
+            }
+            const canvas = document.getElementById("canvas");
+            const image = canvas.toDataURL("image/png");
+            const aTag = document.createElement("a");
+            aTag.href = image;
+            aTag.download = `grid_image(${width}cm W x ${height}cm H).png`;
+            aTag.click();
+        }
+
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                document.getElementById("fileName").innerHTML = input.files[0].name;
+                var reader = new FileReader();
+                reader.onload = function (event) {
+                    document.getElementById("loadedImage").src = event.target.result;
+                    selectedImage = event.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+
+    </script>
+
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .input_area,
+        .canvas_div {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .input_div {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 1px 0px 5px 0px;
+            max-width: 444px;
+        }
+
+        .image {
+            width: 100%;
+            object-fit: contain;
+        }
+
+        .btn {
+            box-sizing: border-box;
+            appearance: none;
+            background-color: transparent;
+            border: 2px solid dodgerBlue;
+            border-radius: 0.6em;
+            color: dodgerBlue;
+            cursor: pointer;
+            display: flex;
+            align-self: center;
+            font-size: 18px;
+            line-height: 1;
+            padding: 8px;
+            text-decoration: none;
+            justify-content: center;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .btn:hover {
+            color: #fff;
+            outline: 0;
+        }
+
+        .btn-style {
+            transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
+        }
+
+        .btn-style:hover {
+            box-shadow: 0 0 40px 40px dodgerBlue inset;
+        }
+
+        input,
+        .file {
+            border: 2px solid #aaa;
+            border-radius: 4px;
+            outline: none;
+            padding: 6px;
+            box-sizing: border-box;
+            transition: .3s;
+            width: 50%;
+            max-width: 220px;
+        }
+
+        input:focus {
+            border-color: dodgerBlue;
+            box-shadow: 0 0 8px 0 dodgerBlue;
+        }
+
+        .file_select {
+            cursor: pointer;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: clip;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <img id="loadedImage" style="display: none;" onload="generate()" src="">
+    <div>
+
+        <div class="input_area">
+            <!-- <div class="input_div">
+                Height (cm)
+                <input type="number" min="1" id="height">
+            </div>
+            <div class="input_div">
+                Width (cm)
+                <input type="number" min="1" id="width">
+            </div> -->
+            <div class="input_div">
+                Select Image
+                <label class="file file_select">
+                    <input type="file" id="file" style="display: none;" onchange="readURL(this)">
+                    <span id="fileName">Select...</span>
+                </label>
+            </div>
+            <div class="input_div">
+                Horizontal Gap (cm)
+                <input type="number" min="1" value="1" oninput="generate()" id="hgap">
+            </div>
+            <div class="input_div">
+                Vertical Gap (cm)
+                <input type="number" min="1" value="1" oninput="generate()" id="vgap">
+            </div>
+            <div class="input_div">
+                Line thickness
+                <input type="number" min="1" value="1" oninput="generate()" id="thickness">
+            </div>
+            <div class="input_div">
+                Line Color
+                <input style="height: 30px;padding: 2px;" type="color" oninput="generate()" id="color">
+            </div>
+            <div class="input_div" style="justify-content: center;">
+                <!-- <input type="button" class="btn btn-style" onclick="generate();" value="Generate"> -->
+                <input type="button" class="btn btn-style" onclick="saveAsFile();" value="Save as file">
+            </div>
+        </div>
+
+        <div class="canvas_div">
+            <canvas id="canvas" style="display: none;"></canvas>
+            <img class="image" style="display: none;" id="generatedImage" src="">
+        </div>
+
+    </div>
+
+</body>
+
+</html>
